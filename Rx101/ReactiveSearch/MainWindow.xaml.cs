@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -30,10 +26,7 @@ namespace ReactiveSearch
         {
             InitializeComponent();
 
-            var baseAddress = "http://localhost.fiddler:2458/api/Search?searchTerm=";
-
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            var client = new SearchServiceClient();
 
 
             Observable.FromEventPattern(SearchBox, "TextChanged")
@@ -41,10 +34,10 @@ namespace ReactiveSearch
                 .Where(txt => txt.Length > 3)
                 .Throttle(TimeSpan.FromSeconds(0.5))
                 .DistinctUntilChanged()
-                .Select(txt => client.GetAsync(baseAddress + txt))
+                .Select(txt => client.SearchAsync(txt))
                 .Switch()
-                .SelectMany(response => response.Content.ReadAsAsync<IEnumerable<string>>())
-                .ObserveOn(Dispatcher.CurrentDispatcher)
+                //.ObserveOn(Dispatcher.CurrentDispatcher)
+                .ObserveOnDispatcher()
                 .Subscribe(
                     results => SearchResults.ItemsSource = results,
                     err => { Debug.WriteLine(err); });
