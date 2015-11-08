@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,59 +10,24 @@ namespace PushMessages
     {
         static void Main(string[] args)
         {
+            var mgr = new SocialNetworksManager();
 
+            var stopwatch = Stopwatch.StartNew();
+            Console.WriteLine("Loading messages");
+            var messages = mgr.LoadMessages("Rx");
+            foreach (var msg in messages)
+            {
+                Console.WriteLine("Iterated:{0} \t after {1}", msg, stopwatch.Elapsed);
+            }
 
-        }
-    }
+            Console.WriteLine("--------------------");
+            Console.WriteLine("Observing messages");
+            stopwatch.Restart();
 
-    class SocialNetworksManager
-    {
-        ISocialNetworkClient _facebook = new FakeFacebookClient();
-        ISocialNetworkClient _twitter = new FakeTwitterClient();
-        ISocialNetworkClient _linkedin = new FakeLinkedinClient();
-        IEnumerable<Message> LoadMessages(string hashtag)
-        {
-            var statuses = _facebook.Search(hashtag);
-            var tweets = _twitter.Search(hashtag);
-            var linkedinMsgs = _linkedin.Search(hashtag);
-            return statuses.Concat(tweets).Concat(linkedinMsgs);
-        }
+            mgr.ObserveLoadedMessages("Rx")
+                .Subscribe(msg => Console.WriteLine("Observed:{0} \t after {1}", msg, stopwatch.Elapsed));
 
-    }
-
-    class Message
-    {
-        public string Content { get; set; }
-    }
-
-    interface ISocialNetworkClient
-    {
-        IEnumerable<Message> Search(string hashtag);
-    }
-
-    class FakeFacebookClient : ISocialNetworkClient
-    {
-        public IEnumerable<Message> Search(string hashtag)
-        {
-            return Enumerable.Range(1, 10).Select(i => "Status" + i).Select(m=>new Message() {Content = m});
-        }
-    }
-
-    class FakeTwitterClient : ISocialNetworkClient
-    {
-        public IEnumerable<Message> Search(string hashtag)
-        {
-            return Enumerable.Range(1, 10).Select(i => "Tweet" + i).Select(m => new Message() { Content = m });
-
-        }
-    }
-
-    class FakeLinkedinClient : ISocialNetworkClient
-    {
-        public IEnumerable<Message> Search(string hashtag)
-        {
-            return Enumerable.Range(1, 10).Select(i => "Update" + i).Select(m => new Message() { Content = m });
-
+            Console.ReadLine();
         }
     }
 }
