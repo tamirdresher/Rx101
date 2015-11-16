@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ReactiveSearch"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Reactive Search" Height="350" Width="525">
     <DockPanel>
         <TextBox x:Name="SearchBox" DockPanel.Dock="Top"></TextBox>
         <ListBox x:Name="SearchResults"></ListBox>

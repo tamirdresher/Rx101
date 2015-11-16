@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -23,10 +24,33 @@ namespace ReactiveSearch
     /// </summary>
     public partial class MainWindow : Window
     {
+        SearchServiceClient _client = new SearchServiceClient();
+
         public MainWindow()
         {
             InitializeComponent();
 
+            //Install-Package Rx-Main
+            //Install-Package Rx-Xaml
+
+            Observable.FromEventPattern(SearchBox, "TextChanged")
+                .Select(_ => SearchBox.Text)
+                .Where(txt => txt.Length >= 3)
+                .Throttle(TimeSpan.FromSeconds(0.5))
+                .DistinctUntilChanged()
+                .Select(txt => _client.SearchAsync(txt))
+                .Switch()
+                .ObserveOnDispatcher()
+                .Subscribe(
+                    results => SearchResults.ItemsSource = results,
+                    err => { Debug.WriteLine(err); });
+
+        }
+
+        #region Backup
+
+        void ReactiveSearch()
+        {
 
             //1. Create Observable from TextChanged event of the SearchBox
             //2. Select the text that was entered
@@ -42,7 +66,7 @@ namespace ReactiveSearch
             Observable.FromEventPattern(SearchBox, "TextChanged")
                 .Select(_ => SearchBox.Text)
                 .Where(txt => txt.Length > 3)
-                .Throttle(TimeSpan.FromSeconds(0.5),DefaultScheduler.Instance)
+                .Throttle(TimeSpan.FromSeconds(0.5), DefaultScheduler.Instance)
                 .DistinctUntilChanged()
                 .Select(txt => client.SearchAsync(txt))
                 .Switch()
@@ -51,26 +75,11 @@ namespace ReactiveSearch
                 .Subscribe(
                     results => SearchResults.ItemsSource = results,
                     err => { Debug.WriteLine(err); });
-        }
 
-        #region Backup
 
-        void ReactiveSearch()
-        {
-            var client = new SearchServiceClient();
+            //   .Subscribe(results => results.ForEach(res => Debug.WriteLine(res)));
 
-            Observable.FromEventPattern(SearchBox, "TextChanged")
-                .Select(_ => SearchBox.Text)
-                .Where(txt => txt.Length > 3)
-                .Throttle(TimeSpan.FromSeconds(0.5))
-                .DistinctUntilChanged()
-                .Select(txt => client.SearchAsync(txt))
-                .Switch()
-                //.ObserveOn(Dispatcher.CurrentDispatcher)
-                .ObserveOnDispatcher()
-                .Subscribe(
-                    results => SearchResults.ItemsSource = results,
-                    err => { Debug.WriteLine(err); });
+
         }
         #endregion
     }
