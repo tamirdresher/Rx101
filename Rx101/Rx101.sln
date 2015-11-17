@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactiveSearch", "ReactiveS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DemoConsole", "DemoConsole\DemoConsole.csproj", "{BBC15661-C530-4F16-A642-6DF67DD6BFF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HistoricalScheduler", "HistoricalScheduler\HistoricalScheduler.csproj", "{48614369-9E2A-48E8-8207-DE7A7434F0FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{BBC15661-C530-4F16-A642-6DF67DD6BFF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBC15661-C530-4F16-A642-6DF67DD6BFF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBC15661-C530-4F16-A642-6DF67DD6BFF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48614369-9E2A-48E8-8207-DE7A7434F0FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48614369-9E2A-48E8-8207-DE7A7434F0FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48614369-9E2A-48E8-8207-DE7A7434F0FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48614369-9E2A-48E8-8207-DE7A7434F0FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
