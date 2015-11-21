@@ -25,6 +25,7 @@ namespace ReactiveSearch
     public partial class MainWindow : Window
     {
         SearchServiceClient _client = new SearchServiceClient();
+        private IDisposable _subscription;
 
         public MainWindow()
         {
@@ -33,18 +34,19 @@ namespace ReactiveSearch
             //Install-Package Rx-Main
             //Install-Package Rx-Xaml
 
-            Observable.FromEventPattern(SearchBox, "TextChanged")
-                .Select(_ => SearchBox.Text)
-                .Where(txt => txt.Length >= 3)
-                .Throttle(TimeSpan.FromSeconds(0.5))
-                .DistinctUntilChanged()
-                .Select(txt => _client.SearchAsync(txt))
-                .Switch()
-                .ObserveOnDispatcher()
-                .Subscribe(
-                    results => SearchResults.ItemsSource = results,
-                    err => { Debug.WriteLine(err); });
-
+            _subscription =
+                Observable.FromEventPattern(SearchBox, "TextChanged")
+                    .Select(_ => SearchBox.Text)
+                    .Where(txt => txt.Length >= 3)
+                    .Throttle(TimeSpan.FromSeconds(0.5))
+                    .DistinctUntilChanged()
+                    .Select(txt => _client.SearchAsync(txt))
+                    .Switch()
+                    .ObserveOnDispatcher()
+                    .Subscribe(
+                        results => SearchResults.ItemsSource = results,
+                        err => { Debug.WriteLine(err); },
+                        () =>{ /* OnCompleted */ });
         }
 
         #region Backup

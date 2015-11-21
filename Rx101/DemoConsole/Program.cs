@@ -12,12 +12,12 @@ namespace DemoConsole
     {
         static void Main(string[] args)
         {
-Observable.Range(1, 10)
-    .Subscribe(x => Console.WriteLine(x));
+            Observable.Range(1, 10)
+                .Subscribe(x => Console.WriteLine(x));
 
             var subscription =
-Observable.Interval(TimeSpan.FromSeconds(1))
-    .Subscribe(x => Console.WriteLine(x));
+                Observable.Interval(TimeSpan.FromSeconds(1))
+                    .Subscribe(x => Console.WriteLine(x));
 
 
 
