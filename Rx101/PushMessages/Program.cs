@@ -17,15 +17,24 @@ namespace PushMessages
             var messages = mgr.LoadMessages("Rx");
             foreach (var msg in messages)
             {
-                Console.WriteLine("Iterated:{0} \t after {1}", msg, stopwatch.Elapsed);
+                Console.WriteLine($"Iterated:{msg} \t after {stopwatch.Elapsed}");
             }
+
+            Console.WriteLine("--------------------");
+            Console.WriteLine("Interactive messages");
+            stopwatch.Restart();
+            var interactiveMgr = new InteractiveSocialNetworksManager();
+            interactiveMgr.MessageAvailable +=
+                (sender, msg) => Console.WriteLine($"Observed:{msg} \t after {stopwatch.Elapsed}");
+            interactiveMgr.LoadMessages("Rx");
+
 
             Console.WriteLine("--------------------");
             Console.WriteLine("Observing messages");
             stopwatch.Restart();
 
             mgr.ObserveLoadedMessages("Rx")
-                .Subscribe(msg => Console.WriteLine("Observed:{0} \t after {1}", msg, stopwatch.Elapsed));
+                .Subscribe(msg => Console.WriteLine($"Observed:{msg} \t after {stopwatch.Elapsed}"));
 
             Console.ReadLine();
         }

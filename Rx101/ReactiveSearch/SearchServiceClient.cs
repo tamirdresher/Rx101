@@ -7,7 +7,7 @@ namespace ReactiveSearch
 {
     class SearchServiceClient
     {
-        const string BaseAddress = "http://localhost.fiddler:2458/api/Search?searchTerm=";
+        const string BaseAddress = "http://localhost:2458/api/Search?searchTerm=";
         private HttpClient _httpClient;
 
         public SearchServiceClient()
@@ -16,6 +16,8 @@ namespace ReactiveSearch
 
             _httpClient = new HttpClient();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var t=SearchAsync("rx");//making a request to warm the server
         }
         public async Task<IEnumerable<string>> SearchAsync(string searchTerm)
         {

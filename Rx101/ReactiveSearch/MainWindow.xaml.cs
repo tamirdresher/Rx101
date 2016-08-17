@@ -1,21 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace ReactiveSearch
 {
@@ -24,15 +12,14 @@ namespace ReactiveSearch
     /// </summary>
     public partial class MainWindow : Window
     {
-        SearchServiceClient _client = new SearchServiceClient();
+        readonly SearchServiceClient _client = new SearchServiceClient();
         private IDisposable _subscription;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            //Install-Package Rx-Main
-            //Install-Package Rx-Xaml
+            //Install-Package System.Reactive
 
             _subscription =
                 Observable.FromEventPattern(SearchBox, "TextChanged")
@@ -47,6 +34,18 @@ namespace ReactiveSearch
                         results => SearchResults.ItemsSource = results,
                         err => { Debug.WriteLine(err); },
                         () =>{ /* OnCompleted */ });
+
+
+            #region clearing results for short search terms
+            Observable.FromEventPattern(SearchBox, "TextChanged")
+                    .Select(_ => SearchBox.Text)
+                    .Where(txt => txt.Length < 3)
+                    .ObserveOnDispatcher()
+                    .Subscribe(
+                        results => SearchResults.ItemsSource = Enumerable.Empty<string>(),
+                        err => { Debug.WriteLine(err); },
+                        () => { /* OnCompleted */ });
+            #endregion
         }
 
         #region Backup
@@ -65,21 +64,31 @@ namespace ReactiveSearch
 
             var client = new SearchServiceClient();
 
+            _subscription =
+               Observable.FromEventPattern(SearchBox, "TextChanged")
+                   .Select(_ => SearchBox.Text)
+                   .Where(txt => txt.Length >= 3)
+                   .Throttle(TimeSpan.FromSeconds(0.5))
+                   .DistinctUntilChanged()
+                   .Select(txt => _client.SearchAsync(txt))
+                   .Switch()
+                   .ObserveOnDispatcher()
+                   .Subscribe(
+                       results => SearchResults.ItemsSource = results,
+                       err => { Debug.WriteLine(err); },
+                       () => { /* OnCompleted */ });
+
+
+            #region clearing results for short search terms
             Observable.FromEventPattern(SearchBox, "TextChanged")
-                .Select(_ => SearchBox.Text)
-                .Where(txt => txt.Length > 3)
-                .Throttle(TimeSpan.FromSeconds(0.5), DefaultScheduler.Instance)
-                .DistinctUntilChanged()
-                .Select(txt => client.SearchAsync(txt))
-                .Switch()
-                //.ObserveOn(Dispatcher.CurrentDispatcher)
-                .ObserveOnDispatcher()
-                .Subscribe(
-                    results => SearchResults.ItemsSource = results,
-                    err => { Debug.WriteLine(err); });
-
-
-            //   .Subscribe(results => results.ForEach(res => Debug.WriteLine(res)));
+                    .Select(_ => SearchBox.Text)
+                    .Where(txt => txt.Length < 3)
+                    .ObserveOnDispatcher()
+                    .Subscribe(
+                        results => SearchResults.ItemsSource = Enumerable.Empty<string>(),
+                        err => { Debug.WriteLine(err); },
+                        () => { /* OnCompleted */ });
+            #endregion
 
 
         }

@@ -17,7 +17,7 @@ namespace PushMessages
             var linkedinMsgs = _linkedin.Search(hashtag);
             return statuses.Concat(tweets).Concat(linkedinMsgs);
         }
-
+        
         public IObservable<Message> ObserveLoadedMessages(string hashtag)
         {
             return Observable.Merge(
