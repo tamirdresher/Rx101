@@ -21,25 +21,23 @@ namespace ReactiveSearch
 
             //Install-Package System.Reactive
 
-            _subscription =
-                Observable.FromEventPattern(SearchBox, "TextChanged")
-                    .Select(_ => SearchBox.Text)
-                    .Where(txt => txt.Length >= 3)
-                    .Throttle(TimeSpan.FromSeconds(0.5))
-                    .DistinctUntilChanged()
-                    .Select(txt => _client.SearchAsync(txt))
-                    .Switch()
-                    .ObserveOnDispatcher()
-                    .Subscribe(
+            int minTextLength = 3;
+
+            var searches = Observable.Empty<string>();
+                
+
+            _subscription = 
+                searches.Subscribe(
                         results => SearchResults.ItemsSource = results,
                         err => { Debug.WriteLine(err); },
-                        () =>{ /* OnCompleted */ });
+                        () => { /* OnCompleted */ });
+            
 
 
             #region clearing results for short search terms
             Observable.FromEventPattern(SearchBox, "TextChanged")
                     .Select(_ => SearchBox.Text)
-                    .Where(txt => txt.Length < 3)
+                    .Where(txt => txt.Length < minTextLength)
                     .ObserveOnDispatcher()
                     .Subscribe(
                         results => SearchResults.ItemsSource = Enumerable.Empty<string>(),
@@ -65,7 +63,7 @@ namespace ReactiveSearch
             var client = new SearchServiceClient();
 
             _subscription =
-               Observable.FromEventPattern(SearchBox, "TextChanged")
+               Observable.FromEventPattern(SearchBox, nameof(SearchBox.TextChanged))
                    .Select(_ => SearchBox.Text)
                    .Where(txt => txt.Length >= 3)
                    .Throttle(TimeSpan.FromSeconds(0.5))

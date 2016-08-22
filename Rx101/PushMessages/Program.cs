@@ -32,9 +32,11 @@ namespace PushMessages
             Console.WriteLine("--------------------");
             Console.WriteLine("Observing messages");
             stopwatch.Restart();
-
+            
             mgr.ObserveLoadedMessages("Rx")
-                .Subscribe(msg => Console.WriteLine($"Observed:{msg} \t after {stopwatch.Elapsed}"));
+                .Subscribe(msg => Console.WriteLine($"Observed:{msg} \t after {stopwatch.Elapsed}"),
+                    ex => { /*OnError*/ },
+                    () => { /*OnCompleted*/ });
 
             Console.ReadLine();
         }
